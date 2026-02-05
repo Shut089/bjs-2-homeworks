@@ -1,54 +1,68 @@
-"use strict";
+'use strict';
 
 function solveEquation(a, b, c) {
-  const d = b ** 2 - 4 * a * c;
+  const discriminant = (b ** 2) - (4 * a * c);
 
-  if (d < 0) {
+  if (discriminant < 0) {
     return [];
   }
 
-  if (d === 0) {
-    return [-b / (2 * a)];
+  if (discriminant === 0) {
+    const root = -b / (2 * a);
+    return [root];
   }
 
-  const sqrtD = Math.sqrt(d);
-  const x1 = (-b + sqrtD) / (2 * a);
-  const x2 = (-b - sqrtD) / (2 * a);
+  const sqrtDiscriminant = Math.sqrt(discriminant);
+  const firstRoot = (-b + sqrtDiscriminant) / (2 * a);
+  const secondRoot = (-b - sqrtDiscriminant) / (2 * a);
 
-  return [x1, x2];
+  return [firstRoot, secondRoot];
 }
 
-
 function calculateTotalMortgage(percent, contribution, amount, countMonths) {
-  const toNumber = (value) => {
-    if (typeof value === "number") return value;
-    if (typeof value === "string") return Number(value);
+  const convertToNumber = (value) => {
+    if (typeof value === 'number') {
+      return value;
+    }
+
+    if (typeof value === 'string') {
+      return Number(value);
+    }
+
     return NaN;
   };
 
-  const p = toNumber(percent);
-  const c = toNumber(contribution);
-  const a = toNumber(amount);
-  const n = toNumber(countMonths);
+  const percentValue = convertToNumber(percent);
+  const contributionValue = convertToNumber(contribution);
+  const amountValue = convertToNumber(amount);
+  const monthsValue = convertToNumber(countMonths);
 
-  if (![p, c, a, n].every(Number.isFinite)) return false;
-  if (n <= 0) return false;
+  const isValid = [percentValue, contributionValue, amountValue, monthsValue]
+    .every(Number.isFinite);
 
-  const loanBody = a - c;
-  if (loanBody <= 0) return 0;
-
-  const monthlyRate = p / 100 / 12;
-
-  let monthlyPayment;
-  if (monthlyRate === 0) {
-    monthlyPayment = loanBody / n;
-  } else {
-    monthlyPayment =
-      loanBody * (monthlyRate + monthlyRate / ((1 + monthlyRate) ** n - 1));
+  if (!isValid || monthsValue <= 0) {
+    return false;
   }
 
-  // ВНИМАНИЕ: под ваши тесты взнос НЕ прибавляется к итоговой сумме
-  const total = monthlyPayment * n;
+  const loanBody = amountValue - contributionValue;
 
-  return +total.toFixed(2);
+  if (loanBody <= 0) {
+    return 0;
+  }
+
+  const monthlyRate = (percentValue / 100) / 12;
+
+  let monthlyPayment;
+
+  if (monthlyRate === 0) {
+    monthlyPayment = loanBody / monthsValue;
+  } else {
+    monthlyPayment = loanBody * (
+      monthlyRate + (monthlyRate / (((1 + monthlyRate) ** monthsValue) - 1))
+    );
+  }
+
+  const totalPayment = monthlyPayment * monthsValue;
+
+  return Number(totalPayment.toFixed(2));
 }
